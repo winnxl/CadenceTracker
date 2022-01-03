@@ -1,5 +1,20 @@
 /*
-  BTCS
+  Bluetooth Cadence Sensor (Tilt)
+  Arduino Nano (ATMega328P Old Bootloader)
+
+  Modules / Components:
+  HC-05 Bluetooth Module
+  Arduino Nano
+  Ball tilt sensor
+  LED (optional external)
+  Resistors: 1k (LED), 10k (Tilt), 2.2k (Voltage Divider R2), 1k (Voltage Divider R1)
+
+  Hardware Setup:
+  Arduino <-> HC-05
+  TX - D10
+  RX - D11
+  Arduino <-> Tilt
+  D4
 */
 
 #include <SoftwareSerial.h>
