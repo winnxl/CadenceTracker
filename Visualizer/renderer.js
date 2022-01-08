@@ -44,22 +44,22 @@ async function readUntilClosed() {
     try {
       while (true) {
         const { value, done } = await reader.read();
-        if (done) { // reader.cancel()
+        if (done) {   // reader.cancel() called
           break;
         }
         console.log(value);
       }
     } catch (error) {
     } finally {
-      reader.releaseLock();
+      reader.releaseLock();   // Allow serial port to be closed later.
     }
   }
   await port.close();
 }
 
 async function disconnect() {
-  keepReading = false;
-  reader.cancel();
+  keepReading = false;  // stop outer loop in readUntilClosed()
+  reader.cancel();  // makes "done" true in readUntilClosed() to break inner loop and subsequently reader.releaseLock()
   await closedPromise;
   console.log("Port Closed");
 }
