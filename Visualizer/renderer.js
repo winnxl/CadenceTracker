@@ -7,11 +7,12 @@ Usage
 5. Click "Disconnect" to disconnect and close stream
 */
 
-var port;
+let port;
 
-let keepReading = true;
+// For Reading / Connect / Disconnect
+let keepReading;
 let reader;
-var closedPromise;
+let closedPromise;
 
 async function test() {
   const existingPermissions = await navigator.serial.getPorts();
@@ -26,21 +27,25 @@ async function test() {
 
 async function connect() {
   if (port) {
-    console.log("opening port")
+    console.log("Opening Port...")
     const portOptions = {
       baudRate: 9600,
       // dataBits: 8
       // parity: "none",
     }
     await port.open(portOptions);
+    keepReading = true;
     closedPromise = readUntilClosed();
   }
 }
 
-// Reads data as Uint8Array
+// Reads data with Transform Stream
 async function readUntilClosed() {
+  let textDecoder, readableStreamClosed;
   while (port.readable && keepReading) {
-    reader = port.readable.getReader();
+    textDecoder = new TextDecoderStream();
+    readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
+    reader = textDecoder.readable.getReader();
     try {
       while (true) {
         const { value, done } = await reader.read();
@@ -54,14 +59,17 @@ async function readUntilClosed() {
       reader.releaseLock();   // Allow serial port to be closed later.
     }
   }
+  await readableStreamClosed.catch(() => { }); // Ignore Error
   await port.close();
+  console.log("Port Closed");
 }
 
+// Disconnect for both Uint8Array and Transform Versions of read data
 async function disconnect() {
+  console.log("Disconnecting Port...");
   keepReading = false;  // stop outer loop in readUntilClosed()
   reader.cancel();  // makes "done" true in readUntilClosed() to break inner loop and subsequently reader.releaseLock()
   await closedPromise;
-  console.log("Port Closed");
 }
 
 // Display whether Web Serial API is supported
@@ -71,3 +79,26 @@ document.getElementById("serial-supported").textContent = "serial" in navigator 
 document.getElementById('button-test').addEventListener('click', test);
 document.getElementById('button-connect').addEventListener('click', connect);
 document.getElementById('button-disconnect').addEventListener('click', disconnect);
+
+
+/* Unused Functions */
+
+// Reads data as Uint8Array
+// async function readUntilClosed() {
+//   while (port.readable && keepReading) {
+//     reader = port.readable.getReader();
+//     try {
+//       while (true) {
+//         const { value, done } = await reader.read();
+//         if (done) {   // reader.cancel() called
+//           break;
+//         }
+//         console.log(value);
+//       }
+//     } catch (error) {
+//     } finally {
+//       reader.releaseLock();   // Allow serial port to be closed later.
+//     }
+//   }
+//   await port.close();
+// }
