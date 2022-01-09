@@ -14,6 +14,26 @@ let keepReading;
 let reader;
 let closedPromise;
 
+// Transform Stream of String to Numbers
+class TransformStreamStringToNumber {
+  constructor() {
+    this.chunks = ""; // Collects stream until new line is detected
+  }
+
+  // Process incoming chunks
+  transform(chunk, controller) {
+    this.chunks += chunk;
+    const lines = this.chunks.split("\r\n");  // Split chunks into lines
+    this.chunks = lines.pop();  // Send last item back to chunk. Could be part of a line or a empty line.
+    lines.forEach((line) => controller.enqueue(Number(line)));
+  }
+
+  // Flush stream when stream is closed
+  flush(controller) {
+    controller.enqueue(this.chunks);
+  }
+}
+
 async function test() {
   const existingPermissions = await navigator.serial.getPorts();
   console.log("Existing port permissions: ", existingPermissions);
@@ -45,7 +65,9 @@ async function readUntilClosed() {
   while (port.readable && keepReading) {
     textDecoder = new TextDecoderStream();
     readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
-    reader = textDecoder.readable.getReader();
+    reader = textDecoder.readable
+      .pipeThrough(new TransformStream(new TransformStreamStringToNumber()))
+      .getReader();
     try {
       while (true) {
         const { value, done } = await reader.read();
