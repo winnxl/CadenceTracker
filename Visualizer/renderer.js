@@ -7,10 +7,14 @@ Usage
 5. Click "Disconnect" to disconnect and close stream
 */
 
+// Cadence Vars
+var sensorRevs = null; // Number of revolutions from sensor data
+
+// Serial Port
 let port;
 
 // For Reading / Connect / Disconnect
-let keepReading;
+let keepReading;  // TODO: Maybe refactor. Also used by display stuff to know if stream is running (update display)
 let reader;
 let closedPromise;
 
@@ -34,6 +38,7 @@ class TransformStreamStringToNumber {
   }
 }
 
+// Load and Select port
 async function test() {
   const existingPermissions = await navigator.serial.getPorts();
   console.log("Existing port permissions: ", existingPermissions);
@@ -45,6 +50,7 @@ async function test() {
   console.log("Port permissions after navigator.serial.requestPort:", updatedPermissions);
 }
 
+// Connect to port and start streaming data
 async function connect() {
   if (port) {
     console.log("Opening Port...")
@@ -74,7 +80,8 @@ async function readUntilClosed() {
         if (done) {   // reader.cancel() called
           break;
         }
-        console.log(value);
+        // console.log(value);
+        updateSensorRevs(value);
       }
     } catch (error) {
     } finally {
@@ -94,6 +101,18 @@ async function disconnect() {
   await closedPromise;
 }
 
+
+// Update Sensor Revolutions
+function updateSensorRevs(num){
+  sensorRevs = num;
+  displaySensorRevs();  // TODO: Consider refactoring this for another function to handle
+}
+
+// Display Sensor Revolutions
+function displaySensorRevs(){
+    document.getElementById('revolutions').textContent = sensorRevs;
+}
+
 // Display whether Web Serial API is supported
 document.getElementById("serial-supported").textContent = "serial" in navigator ? "True" : "False";
 
@@ -102,6 +121,9 @@ document.getElementById('button-test').addEventListener('click', test);
 document.getElementById('button-connect').addEventListener('click', connect);
 document.getElementById('button-disconnect').addEventListener('click', disconnect);
 
+document.getElementById('button_index').addEventListener('click', () => {
+  window.electronAPI.switchPage('index');
+});
 
 /* Unused Functions */
 
