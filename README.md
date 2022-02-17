@@ -1,4 +1,9 @@
-
+### Sensor
 
 ### Visualizer
-`npm start`
+```
+npm -ci     // Clean Install
+
+npm start   // Start app
+```
+
