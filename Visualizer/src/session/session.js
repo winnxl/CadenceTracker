@@ -1,14 +1,20 @@
 /*
 Usage
-1. Click "Test" to load ports into menu
+1. Click "Load/Get Ports" to load ports into menu
 2. Select port in menu
-3. Click "Test" to select port
+3. Click "Load/Get Ports" to select port
 4. Click "Connect" to connect and stream data
 5. Click "Disconnect" to disconnect and close stream
 */
 
 // Cadence Vars
 var sensorRevs = null; // Number of revolutions from sensor data
+let sensorRevsArr = [];
+let startDateTime = null;
+let endDateTime = null;
+
+// TMP 
+let movingAverage3sArr = [];
 
 // Serial Port
 let port;
@@ -39,7 +45,7 @@ class TransformStreamStringToNumber {
 }
 
 // Load and Select port
-async function test() {
+async function loadGetPorts() {
   const existingPermissions = await navigator.serial.getPorts();
   console.log("Existing port permissions: ", existingPermissions);
 
@@ -67,6 +73,10 @@ async function connect() {
 
 // Reads data with Transform Stream
 async function readUntilClosed() {
+  startDateTime = new Date();
+  iidRpm3s = setInterval(displayRpm3s, 500);
+  iUpdateSensorRevsArr = setInterval(pushSensorRevsToArr, 500);
+
   let textDecoder, readableStreamClosed;
   while (port.readable && keepReading) {
     textDecoder = new TextDecoderStream();
@@ -99,30 +109,126 @@ async function disconnect() {
   keepReading = false;  // stop outer loop in readUntilClosed()
   reader.cancel();  // makes "done" true in readUntilClosed() to break inner loop and subsequently reader.releaseLock()
   await closedPromise;
+
+  clearInterval(iidRpm3s);
+  clearInterval(iUpdateSensorRevsArr);
+  endDateTime = new Date();
+  console.log(sensorRevsArr);
+  console.log((endDateTime - startDateTime) / 1000);
 }
 
 
 // Update Sensor Revolutions
-function updateSensorRevs(num){
+function updateSensorRevs(num) {
   sensorRevs = num;
   displaySensorRevs();  // TODO: Consider refactoring this for another function to handle
 }
 
 // Display Sensor Revolutions
-function displaySensorRevs(){
-    document.getElementById('revolutions').textContent = sensorRevs;
+function displaySensorRevs() {
+  document.getElementById('revolutions').textContent = sensorRevs;
 }
+
+// Display RPM 3S
+function displayRpm3s() {
+  diff = (sensorRevsArr[sensorRevsArr.length - 1] - sensorRevsArr[sensorRevsArr.length - 7]) / 3; // 6 samples, sample every 0.5 second for 3 second moving average
+
+  document.getElementById('rpm3s').textContent = diff.toFixed(1);
+  movingAverage3sArr.push(diff);
+
+  oldRpm3sRevs = sensorRevs;
+  return diff;
+}
+
+// Helper - Update Array
+function pushSensorRevsToArr() {
+  sensorRevsArr.push(sensorRevs);
+
+  // TODO wrap below and containing function in a different update function. Link interval to new update function
+  updateChartData();
+  updateChart();
+}
+
+
+// Run RPM3s every 3s
+let iidRpm3s;
+// Interval to update every half second
+let iUpdateSensorRevsArr;
+
+// Chart Data Update
+function display3sMA() {
+
+}
+
+// TODO make these things calculated
+function updateChartData() {
+  let timeWindow = 30; // 30 seconds
+  let samples = 2; // 2 data points per second
+  let maxPoints = timeWindow * samples;
+  let nPoints = Math.min(maxPoints, sensorRevsArr.length)
+  let offset = 0;
+  if (sensorRevsArr.length > maxPoints) {
+    offset = (sensorRevsArr.length - maxPoints) / 2;
+  }
+  chartXLabels = Array.from({ length: nPoints }, (v, i) => i * 0.5 + offset);
+
+  if (movingAverage3sArr.length > maxPoints){
+    chartDatasetData[0] = movingAverage3sArr.slice(movingAverage3sArr.length - maxPoints);
+  } else {
+    chartDatasetData[0] = movingAverage3sArr;
+  }
+}
+
+
+// Chart
+const id_chart = 'canvas_chart';
+const chartDatasetLabels = ['3S MA'];
+const chartBorderColor = ['rgb(75, 192, 192)']  // TODO Make this dynamic. RN may run of of colors
+
+let chartXLabels = [];
+const chartDatasetData = [[]];
+
+function createChart() {
+  window.electronChart.createChart(id_chart, {
+    type: 'line',
+    data: {
+      labels: null,
+      datasets: [
+          {
+          label: [],
+          data: [],
+          fill: true,       // Area under line
+          borderColor: null
+        }
+      ]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+function updateChart() {
+  window.electronChart.updateChart(chartXLabels, chartDatasetLabels, chartDatasetData, chartBorderColor);
+}
+createChart();
+
+// TODO: Reactor intervals and closers to start/stop functions. Add these to the stream open/close.
 
 // Display whether Web Serial API is supported
 document.getElementById("serial-supported").textContent = "serial" in navigator ? "True" : "False";
 
 // Buttons
-document.getElementById('button-test').addEventListener('click', test);
+document.getElementById('button_loadGetPorts').addEventListener('click', loadGetPorts);
 document.getElementById('button-connect').addEventListener('click', connect);
 document.getElementById('button-disconnect').addEventListener('click', disconnect);
 
 document.getElementById('button_index').addEventListener('click', () => {
-  window.electronAPI.switchPage('index');
+  window.electronIPC.switchPage('index');
 });
 
 /* Unused Functions */
