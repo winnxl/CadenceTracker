@@ -5,26 +5,39 @@
   <meta charset="UTF-8">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Web Serial API</title>
+  <link rel="stylesheet" href="../bootstrap/bootstrap.min.css">
+  <title>New Session</title>
 
-<body>
-  <h1>Web Serial API</h1>
-  <button id="button_index">HOME</button>
+<body class="vh-100 bg-light">
+  <!-- <h1 class="display-3 d-flex justify-content-around">Session</h1> -->
+  <section class="mh-25 fixed-top">
+    <br>
+    <div class="d-flex justify-content-around">
+      <button id="button_index" class="btn btn-secondary btn-lg">HOME</button>
+      <button id="button_loadGetPorts" class="btn btn-secondary btn-lg">Load/Get Ports</button>
+      <button id="button-connect" class="btn btn-secondary btn-lg">Connect</button>
+      <button id="button-disconnect" class="btn btn-secondary btn-lg">Disconnect</button>
+    </div>
 
-  <p>Serial Supported: <span id="serial-supported"></span></p>
-
-  <button id="button_loadGetPorts">Load/Get Ports</button>
-  <button id="button-connect">Connect</button>
-  <button id="button-disconnect">Disconnect</button>
-  <div id="serial-out"></div>
-
-  <p>Total Revolutions:<span id="revolutions"></span></p>
-  <p>RPM:<span id="rpm"></span></p>
-  <section>
-  <canvas id="canvas_chart" width="400" height="400"></canvas>
+    <div class="d-flex justify-content-around">
+      <div class="text-center">
+        <div class="fs-1" id="revolutions">0</div>
+        <div>REV</div>
+      </div>
+      <div class="text-center">
+        <div class="fs-1" id="rpm">0</div>
+        <div>RPM</div>
+      </div>
+        <!-- <p>Serial Supported: <span id="serial-supported"></span></p>
+        <br> -->
+    </div>
 
   </section>
 
+  <section >
+    <canvas class="mh-75 fixed-bottom" id="canvas_chart"></canvas>
+  </section>
+  
   <script src="./session.js"></script>
 </body>
 

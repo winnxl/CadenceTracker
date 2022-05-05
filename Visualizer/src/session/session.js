@@ -230,7 +230,7 @@ function update500() {
 createChart();
 
 // Display whether Web Serial API is supported
-document.getElementById("serial-supported").textContent = "serial" in navigator ? "True" : "False";
+// document.getElementById("serial-supported").textContent = "serial" in navigator ? "True" : "False";
 
 // Buttons
 document.getElementById('button_loadGetPorts').addEventListener('click', loadGetPorts);

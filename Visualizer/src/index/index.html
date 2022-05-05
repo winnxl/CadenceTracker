@@ -5,12 +5,19 @@
   <meta charset="UTF-8">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Web Serial API</title>
+  <link rel="stylesheet" href="../bootstrap/bootstrap.min.css">
+  <title>Cadence Tracker</title>
 
-<body>
-  <h1>Index</h1>
+<body class="vh-100 d-flex flex-column">
+  <br>
+  <div>
+    <h1 class="text-center">Cadence Tracker</h1>
+  </div>
 
-  <button id="button_newSession">New Session</button>
+  <div class="mb-5 flex-grow-1 d-flex flex-column justify-content-around align-items-center">
+    <button class="w-40 btn btn-secondary btn-lg" id="button_newSession">New Session</button>
+    <button class="w-40 btn btn-secondary btn-lg" id="button_history">History</button>
+  </div>
 
   <script src="./index.js"></script>
 </body>
