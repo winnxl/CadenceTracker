@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^17.0.1"
+    "electron": "^18.2.0"
   },
   "dependencies": {
     "chart.js": "^3.7.1"
