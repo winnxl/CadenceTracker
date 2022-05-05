@@ -19,6 +19,7 @@ contextBridge.exposeInMainWorld(
     },
     updateChart: (xLabels, datasetsLabel, datasetsData, datasetsBorderColor) => {
       chart.data.labels = xLabels;
+      // Update each dataset
       for (let i = 0; i < datasetsLabel.length; i++) {
         chart.data.datasets[i].label = datasetsLabel[i];
         chart.data.datasets[i].data = datasetsData[i];
