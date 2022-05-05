@@ -2,8 +2,6 @@ const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 const { type } = require('os');
 const path = require('path')  // For preload.js
 
-// app.commandLine.appendSwitch('enable-features', 'ElectronSerialChooser')
-
 // Application Menu - Top Bar
 const template = [
   {
@@ -74,34 +72,11 @@ function createWindow() {
     }
   })
 
-  // mainWindow.webContents.session.on('serial-port-added', (event, port) => {
-  //   console.log('serial-port-added FIRED WITH', port);
-  //   event.preventDefault();
-  // })
-
-  // mainWindow.webContents.session.on('serial-port-removed', (event, port) => {
-  //   console.log('serial-port-removed FIRED WITH', port);
-  //   event.preventDefault();
-  // })
-
-  // mainWindow.webContents.session.on('select-serial-port-cancelled', () => {
-  //   console.log('select-serial-port-cancelled FIRED.');
-  // })
-
-  // mainWindow.webContents.session.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
-  //   // This permission check handler is not needed by default but available if you want to limit serial requests
-  //   console.log(`In PermissionCheckHandler`);
-  //   console.log(`Webcontents url: ${webContents.getURL()}`);
-  //   console.log(`Permission: ${permission}`);
-  //   console.log(`Requesting Origin: ${requestingOrigin}`, details);  
-  //   return true;
-  // });  
-
-  // and load the index.html of the app.
-  mainWindow.loadFile('src/session/session.html') // TODO: Change back to index.html later. 
+  // load initial page
+  mainWindow.loadFile('src/index/index.html')
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
 
   // console.log(mainWindow.webContents)
   return mainWindow
@@ -142,6 +117,27 @@ app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit()
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+// Unused code 
 
+  // mainWindow.webContents.session.on('serial-port-added', (event, port) => {
+  //   console.log('serial-port-added FIRED WITH', port);
+  //   event.preventDefault();
+  // })
+
+  // mainWindow.webContents.session.on('serial-port-removed', (event, port) => {
+  //   console.log('serial-port-removed FIRED WITH', port);
+  //   event.preventDefault();
+  // })
+
+  // mainWindow.webContents.session.on('select-serial-port-cancelled', () => {
+  //   console.log('select-serial-port-cancelled FIRED.');
+  // })
+
+  // mainWindow.webContents.session.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
+  //   // This permission check handler is not needed by default but available if you want to limit serial requests
+  //   console.log(`In PermissionCheckHandler`);
+  //   console.log(`Webcontents url: ${webContents.getURL()}`);
+  //   console.log(`Permission: ${permission}`);
+  //   console.log(`Requesting Origin: ${requestingOrigin}`, details);  
+  //   return true;
+  // });  
